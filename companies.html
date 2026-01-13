@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>InternPath | Companies</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <title>Companies</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="db.js"></script>
 </head>
 <body>
     <main>
@@ -17,86 +20,91 @@
             <input type="hidden" id="edit-id">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:10px;">
                 <div><label>Company</label><input type="text" id="comp"></div>
-                <div><label>Date Apply</label><input type="date" id="date"></div>
+                <div><label>Date Apply</label><input type="text" id="date" placeholder="DD/MM/YYYY"></div>
                 <div><label>Status</label>
                     <select id="status">
                         <option value="applied">Applied</option>
                         <option value="rejected">Rejected</option>
+                        <option value="interviewing">Interviewing</option>
+                        <option value="offered">Offered</option>
                     </select>
                 </div>
-                <div><label>Notes (Source)</label><input type="text" id="notes" placeholder="e.g. LinkedIn, Website"></div>
+                <div><label>Notes</label><input type="text" id="notes"></div>
             </div>
             <button class="btn btn-primary" onclick="saveEntry()">Save Entry</button>
+            <button class="btn" onclick="toggleForm()">Cancel</button>
         </div>
 
         <div class="card" style="margin-top:1.5rem;">
             <table>
-                <thead><tr><th>Company</th><th>Date Apply</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
+                <thead>
+                    <tr><th>Company</th><th>Date Apply</th><th>Status</th><th>Notes</th><th>Actions</th></tr>
+                </thead>
                 <tbody id="table-body"></tbody>
             </table>
         </div>
     </main>
+
     <script src="navbar.js"></script>
     <script>
-        // companies.html script section
-const tableBody = document.getElementById('table-body');
+        async function loadInternships() {
+            const { data, error } = await supabaseClient
+                .from('internships')
+                .select('*');
 
-// 1. Load data from Supabase
-async function loadInternships() {
-    const { data, error } = await supabaseClient
-        .from('internships')
-        .select('*')
-        .order('date_apply', { ascending: false });
+            if (error) console.error(error);
+            else renderTable(data);
+        }
 
-    if (error) console.error(error);
-    else renderTable(data);
-}
+        function renderTable(apps) {
+            const tbody = document.getElementById('table-body');
+            // We use ['Key Name'] because your CSV has spaces in headers
+            tbody.innerHTML = apps.map(app => `
+                <tr>
+                    <td><strong>${app.COMPANY || ''}</strong></td>
+                    <td>${app['DATE APPLY'] || ''}</td>
+                    <td><span class="badge status-${(app.STATUS || 'applied').toLowerCase()}">${app.STATUS || 'applied'}</span></td>
+                    <td>${app.Notes || ''}</td>
+                    <td>
+                        <button class="btn" onclick="editEntry('${app.id}', '${app.COMPANY}', '${app['DATE APPLY']}', '${app.STATUS}', '${app.Notes}')"><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-// 2. Render data to the table
-function renderTable(apps) {
-    tableBody.innerHTML = apps.map(app => `
-        <tr>
-            <td><strong>${app.company}</strong></td>
-            <td>${app.date_apply}</td>
-            <td><span class="badge status-${app.status}">${app.status}</span></td>
-            <td>${app.notes || ''}</td>
-            <td>
-                <button class="btn" onclick="editEntry('${app.id}')"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-danger" onclick="deleteEntry('${app.id}')"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `).join('');
-}
+        function toggleForm() {
+            const f = document.getElementById('form-card');
+            f.style.display = f.style.display === 'none' ? 'block' : 'none';
+        }
 
-// 3. Save or Update Entry
-async function saveEntry() {
-    const id = document.getElementById('edit-id').value;
-    const payload = {
-        company: document.getElementById('comp').value,
-        date_apply: document.getElementById('date').value,
-        status: document.getElementById('status').value,
-        notes: document.getElementById('notes').value
-    };
+        async function saveEntry() {
+            const id = document.getElementById('edit-id').value;
+            const payload = {
+                "COMPANY": document.getElementById('comp').value,
+                "DATE APPLY": document.getElementById('date').value,
+                "STATUS": document.getElementById('status').value,
+                "Notes": document.getElementById('notes').value
+            };
 
-    if (id) {
-        await supabaseClient.from('internships').update(payload).eq('id', id);
-    } else {
-        await supabaseClient.from('internships').insert([payload]);
-    }
+            if (id) {
+                await supabaseClient.from('internships').update(payload).eq('id', id);
+            } else {
+                await supabaseClient.from('internships').insert([payload]);
+            }
+            location.reload();
+        }
 
-    location.reload(); // Refresh to show changes
-}
+        function editEntry(id, comp, date, status, notes) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('comp').value = comp;
+            document.getElementById('date').value = date;
+            document.getElementById('status').value = status;
+            document.getElementById('notes').value = notes;
+            document.getElementById('form-title').innerText = "Edit Entry";
+            toggleForm();
+        }
 
-// 4. Delete Entry
-async function deleteEntry(id) {
-    if(confirm("Are you sure?")) {
-        await supabaseClient.from('internships').delete().eq('id', id);
         loadInternships();
-    }
-}
-
-// Initial Load
-loadInternships();
     </script>
 </body>
 </html>
