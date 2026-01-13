@@ -12,4 +12,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const page = window.location.pathname.split("/").pop() || "index.html";
     const activeId = "nav-" + page.replace(".html", "");
     if (document.getElementById(activeId)) document.getElementById(activeId).classList.add("active");
+    // Add this inside the navHTML string in navbar.js
+<a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
 });
