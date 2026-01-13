@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Dashboard</title>
+</head>
+<body>
+    <main>
+        <h2>Internship Progress</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 2rem 0;">
+            <div class="card"><h4>Total Applications</h4><h1 id="totalCount">0</h1></div>
+            <div class="card"><h4>Applied</h4><h1 id="appliedCount" style="color:var(--primary)">0</h1></div>
+            <div class="card"><h4>Rejected</h4><h1 id="rejectedCount" style="color:var(--danger)">0</h1></div>
+        </div>
+    </main>
+    <script src="navbar.js"></script>
+</body>
+</html>
