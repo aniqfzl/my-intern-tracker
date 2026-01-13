@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="companies.html" class="nav-link" id="nav-companies"><i class="fas fa-building"></i> Companies</a>
             <a href="interviews.html" class="nav-link" id="nav-interviews"><i class="fas fa-calendar-check"></i> Interviews</a>
             <a href="profile.html" class="nav-link" id="nav-profile"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     `;
     document.body.insertAdjacentHTML('afterbegin', navHTML);
@@ -13,5 +14,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const activeId = "nav-" + page.replace(".html", "");
     if (document.getElementById(activeId)) document.getElementById(activeId).classList.add("active");
     // Add this inside the navHTML string in navbar.js
-<a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+
 });
+
